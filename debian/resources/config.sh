@@ -3,12 +3,12 @@
 domain_name=ip_address          # hostname, ip_address or a custom value
 system_username=admin           # default username admin
 system_password=random          # random or a custom value
-system_branch=master            # master, stable
+system_branch=stable            # master, stable
 
 # FreeSWITCH Settings
 switch_branch=stable            # master, stable
-switch_source=true              # true or false
-switch_package=false            # true or false
+switch_source=false		# true or false
+switch_package=true		# true or false
 switch_version=1.8.4            # only for source
 switch_tls=true                 # true or false
 
@@ -21,5 +21,5 @@ database_port=5432              # port number
 database_backup=false           # true or false
 
 # General Settings
-php_version=7.1                 # PHP version 5.6 or 7.0, 7.1, 7.2
+php_version=7.2                 # PHP version 5.6 or 7.0, 7.1, 7.2
 letsencrypt_folder=true         # true or false

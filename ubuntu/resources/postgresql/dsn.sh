@@ -9,30 +9,7 @@ cd "$(dirname "$0")"
 #set the date
 now=$(date +%Y-%m-%d)
 
-#get the database password
-if [ .$database_password = .'random' ]; then
-	read -p "Enter the database password: " database_password
-fi
-
-#whether to load the schema
-read -p "Auto create schemas (y/n): " auto_create_schema
-
-#whether to load the schema
-read -p "Load schema with primary keys (y/n): " load_schema
-
-#set PGPASSWORD
-export PGPASSWORD=$database_password
-
-#disable auto create schemas
-if [ .$auto_create_schema = ."n" ]; then
-	sed -i /etc/freeswitch/autoload_configs/switch.conf.xml -e s:'<!-- <param name="auto-create-schemas" value="true"/> -->:<param name="auto-create-schemas" value="false"/>:'
-fi
-
-#load the schema
-if [ .$load_schema = ."y" ]; then
-	sudo -u postgres psql -h $database_host -p $database_port -U freeswitch -d freeswitch -c "create extension pgcrypto;";
-	sudo -u postgres psql -h $database_host -p $database_port -U freeswitch -d freeswitch -f /var/www/fusionpbx/resources/install/sql/switch.sql -L /tmp/schema.log;
-fi
+database_password=$PGPASSWORD
 
 #enable odbc-dsn in the xml
 sed -i /etc/freeswitch/autoload_configs/db.conf.xml -e s:'<!--<param name="odbc-dsn" value="$${dsn}"/>-->:<param name="odbc-dsn" value="$${dsn}"/>:'
@@ -50,7 +27,7 @@ sudo -u postgres psql -h $database_host -p $database_port -U freeswitch -d fusio
 #add the 
 echo "<!-- DSN -->" >> /etc/freeswitch/vars.xml
 echo "<X-PRE-PROCESS cmd=\"set\" data=\"dsn_system=pgsql://hostaddr=$database_host port=$database_port dbname=fusionpbx user=fusionpbx password=$database_password options=\" />" >> /etc/freeswitch/vars.xml
-echo "<X-PRE-PROCESS cmd=\"set\" data=\"dsn=pgsql://hostaddr=$database_host port=$database_port dbname=freeswitch user=fusionpbx password=$database_password options=\" />" >> /etc/freeswitch/vars.xml
+echo "<X-PRE-PROCESS cmd=\"set\" data=\"dsn=pgsql://hostaddr=$database_host port=$database_port dbname=freeswitch user=freeswitch password=$database_password options=\" />" >> /etc/freeswitch/vars.xml
 echo "<X-PRE-PROCESS cmd=\"set\" data=\"dsn_callcenter=sqlite:///var/lib/freeswitch/db/callcenter.db\" />" >> /etc/freeswitch/vars.xml
 
 #remove the sqlite database files
