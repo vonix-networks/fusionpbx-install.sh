@@ -14,6 +14,13 @@ if [ -z $FUSIONPBX_DB_HOST ]; then
 	exit 1
 fi
 
+# Terminate all services prior to moving configuration
+service nginx stop
+service fail2ban stop
+service php7.2-fpm stop
+service memcached stop
+service freeswitch stop
+
 # First, move /etc configuration over
 mkdir -p /data/etc
 
@@ -104,3 +111,14 @@ do
     rm $db
   fi
 done
+
+# Stop and disable local postgres
+service postgresql stop
+update-rc.d postgresql disable
+
+# Restart all services we brought down initally
+service fail2ban start
+service php7.2-fpm start
+service nginx start 
+service memcached start
+service freeswitch start
