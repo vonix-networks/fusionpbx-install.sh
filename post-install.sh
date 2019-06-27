@@ -20,7 +20,7 @@ mkdir -p /data/etc
 mv /etc/fusionpbx /data/etc
 ln -s /data/etc/fusionpbx /etc/fusionpbx
 
-mv freeswitch /data/etc
+mv /etc/freeswitch /data/etc
 ln -s /data/etc/freeswitch /etc/freeswitch
 
 mv /etc/fail2ban /data/etc
@@ -43,30 +43,30 @@ ln -s /data/var/www/fusionpbx/ /var/www/fusionpbx
 
 # Configure /etc/fusionpbx/config.lua
 cp /etc/fusionpbx/config.lua /etc/fusionpbx/config.lua.orig
-sed -i 's/database.system = .*/database.system = "pgsql://hostaddr=${FUSIONPBX_DB_HOST} port=${FUSIONPBX_DB_PORT} dbname=${FUSIONPBX_DB_NAME} user=${FUSIONPBX_DB_USER} password=${FUSIONPBX_DB_PASS} options=''";/' /etc/fusionpbx/config.lua
-sed -i 's/database.switch = .*/database.switch = "pgsql://hostaddr=${FREESWITCH_DB_HOST} port=${FREESWITCH_DB_PORT} dbname=${FREESWITCH_DB_NAME} user=${FREESWITCH_DB_USER} password=${FREESWITCH_DB_PASS} options=''";/' /etc/fusionpbx/config.lua
+sed -i 's%database.system = .*%database.system = "'"pgsql://hostaddr=${FUSIONPBX_DB_HOST} port=${FUSIONPBX_DB_PORT} dbname=${FUSIONPBX_DB_NAME} user=${FUSIONPBX_DB_USER} password=${FUSIONPBX_DB_PASS} options=''"'";%' /etc/fusionpbx/config.lua
+sed -i 's%database.switch = .*%database.switch = "'"pgsql://hostaddr=${FREESWITCH_DB_HOST} port=${FREESWITCH_DB_PORT} dbname=${FREESWITCH_DB_NAME} user=${FREESWITCH_DB_USER} password=${FREESWITCH_DB_PASS} options=''"'";%' /etc/fusionpbx/config.lua
 
 # Export old configuration
 OLD_FUSION_DB_HOST="$(grep db_host /etc/fusionpbx/config.php | cut -d "'" -f 2)"
 OLD_FUSION_DB_PORT="$(grep db_port /etc/fusionpbx/config.php | cut -d "'" -f 2)"
-OLD_FUSION_DB_NAME="$(grep db_name /etc/fusionpbx/config.php | cut -d "'" -f 2)"
+OLD_FUSION_DB_NAME="$(grep db_name /etc/fusionpbx/config.php | tail -n 1 | cut -d "'" -f 2)"
 OLD_FUSION_DB_USER="$(grep db_username /etc/fusionpbx/config.php | cut -d "'" -f 2)"
 OLD_FUSION_DB_PASS="$(grep db_password /etc/fusionpbx/config.php | cut -d "'" -f 2)"
 
 # Configure /etc/fusionpbx/config.php
 cp /etc/fusionpbx/config.php /etc/fusionpbx/config.php.orig
-sed "s/db_host = .*/db_host = '${FUSIONPBX_DB_HOST}';/" /etc/fusionpbx/config.php
-sed "s/db_port = .*/db_port = '${FUSIONPBX_DB_PORT}';/" /etc/fusionpbx/config.php
-sed "s/db_name = .*/db_name = '${FUSIONPBX_DB_NAME}';/" /etc/fusionpbx/config.php
-sed "s/db_username = .*/db_username = '${FUSIONPBX_DB_USER}';/" /etc/fusionpbx/config.php
-sed "s/db_password = .*/db_password = '${FUSIONPBX_DB_PASS}';/" /etc/fusionpbx/config.php
+sed -i "s/db_host = .*/db_host = '${FUSIONPBX_DB_HOST}';/" /etc/fusionpbx/config.php
+sed -i "s/db_port = .*/db_port = '${FUSIONPBX_DB_PORT}';/" /etc/fusionpbx/config.php
+sed -i "s/db_name = .*/db_name = '${FUSIONPBX_DB_NAME}';/" /etc/fusionpbx/config.php
+sed -i "s/db_username = .*/db_username = '${FUSIONPBX_DB_USER}';/" /etc/fusionpbx/config.php
+sed -i "s/db_password = .*/db_password = '${FUSIONPBX_DB_PASS}';/" /etc/fusionpbx/config.php
 
 # Migrate data to new location
 export PGPASSWORD=${OLD_FUSION_DB_PASS}
 pg_dump -U ${OLD_FUSION_DB_USER} -h ${OLD_FUSION_DB_HOST} -p ${OLD_FUSION_DB_PORT} -f /tmp/fusionpbx_dump.sql ${OLD_FUSION_DB_NAME}
 
 export PGPASSWORD=${FUSIONPBX_DB_PASS}
-FUSIONPBX_PSQL="psql -U ${FUSIONPBX_DB_USER} -h ${FUSIONPBX_DB_HOST} -p ${FUSIONPBS_DB_PORT} -d ${FUSIONPBX_DB_NAME}"
+FUSIONPBX_PSQL="psql -U ${FUSIONPBX_DB_USER} -h ${FUSIONPBX_DB_HOST} -p ${FUSIONPBX_DB_PORT} -d ${FUSIONPBX_DB_NAME}"
 FREESWITCH_PSQL="psql -h ${FREESWITCH_DB_HOST} -p ${FREESWITCH_DB_PORT} -U ${FREESWITCH_DB_USER} -d ${FREESWITCH_DB_NAME}"
 
 ${FUSIONPBX_PSQL} < /tmp/fusionpbx_dump.sql
