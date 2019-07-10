@@ -24,6 +24,9 @@ ln -s /data/etc/freeswitch /etc/freeswitch
 mv /etc/fail2ban /data/etc
 ln -s /data/etc/fail2ban /etc/fail2ban
 
+mv /etc/nginx /data/etc
+ln -s /data/etc/nginx /etc/nginx
+
 mkdir -p /data/var/lib
 
 mv /var/lib/freeswitch /data/var/lib
